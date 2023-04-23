@@ -99,9 +99,9 @@ def _build_sam(
         pixel_mean=[123.675, 116.28, 103.53],
         pixel_std=[58.395, 57.12, 57.375],
     )
-    sam.eval()
+    sam.eval() # 评估模式
     if checkpoint is not None:
-        with open(checkpoint, "rb") as f:
+        with open(checkpoint, "rb") as f: # 只读二进制模式
             state_dict = torch.load(f)
         sam.load_state_dict(state_dict)
     return sam

@@ -174,7 +174,7 @@ def write_masks_to_folder(masks: List[Dict[str, Any]], path: str) -> None:
     return
 
 
-def get_amg_kwargs(args):
+def get_amg_kwargs(args): # 关键字参数处理
     amg_kwargs = {
         "points_per_side": args.points_per_side,
         "points_per_batch": args.points_per_batch,
@@ -188,27 +188,27 @@ def get_amg_kwargs(args):
         "crop_n_points_downscale_factor": args.crop_n_points_downscale_factor,
         "min_mask_region_area": args.min_mask_region_area,
     }
-    amg_kwargs = {k: v for k, v in amg_kwargs.items() if v is not None}
+    amg_kwargs = {k: v for k, v in amg_kwargs.items() if v is not None} # 剔除字典的空值项
     return amg_kwargs
 
 
 def main(args: argparse.Namespace) -> None:
     print("Loading model...")
-    sam = sam_model_registry[args.model_type](checkpoint=args.checkpoint)
-    _ = sam.to(device=args.device)
-    output_mode = "coco_rle" if args.convert_to_rle else "binary_mask"
-    amg_kwargs = get_amg_kwargs(args)
-    generator = SamAutomaticMaskGenerator(sam, output_mode=output_mode, **amg_kwargs)
+    sam = sam_model_registry[args.model_type](checkpoint=args.checkpoint) # 加载模型
+    _ = sam.to(device=args.device) # 似乎未用上
+    output_mode = "coco_rle" if args.convert_to_rle else "binary_mask" # 可输出 coco_rle 格式，默认输出二值掩码
+    amg_kwargs = get_amg_kwargs(args) # 获取关键字参数
+    generator = SamAutomaticMaskGenerator(sam, output_mode=output_mode, **amg_kwargs) # 自动掩码生成器
 
-    if not os.path.isdir(args.input):
+    if not os.path.isdir(args.input): # 传入图像
         targets = [args.input]
-    else:
+    else: # 传入文件夹
         targets = [
             f for f in os.listdir(args.input) if not os.path.isdir(os.path.join(args.input, f))
         ]
         targets = [os.path.join(args.input, f) for f in targets]
 
-    os.makedirs(args.output, exist_ok=True)
+    os.makedirs(args.output, exist_ok=True) # 已存在不抛出错误
 
     for t in targets:
         print(f"Processing '{t}'...")
@@ -234,5 +234,5 @@ def main(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
+    args = parser.parse_args() # 读入运行参数
     main(args)
